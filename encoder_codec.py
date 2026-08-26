@@ -73,3 +73,50 @@ def prepare_binary(binary):
         padding = 1
 
     return binary, padding
+
+# ============================================================
+# DNA CONVERSION UTILITIES
+# ============================================================
+
+BASES = ["A", "C", "G", "T"]
+
+TWO_BIT_VALUES = ["00", "01", "10", "11"]
+
+
+def bits_to_pairs(binary):
+    """
+    Converts:
+
+    00101100
+
+    into:
+
+    ['00', '10', '11', '00']
+    """
+
+    return [
+        binary[i:i + 2]
+        for i in range(0, len(binary), 2)
+    ]
+
+
+# ============================================================
+# CONSTRAINT 1: GC CONTENT
+# ============================================================
+
+def check_gc_content(sequence):
+    """
+    Checks whether GC content is between MIN_GC and MAX_GC.
+    """
+
+    if not sequence:
+        return False, 0.0
+
+    gc_count = sequence.count("G") + sequence.count("C")
+    gc_content = gc_count / len(sequence)
+
+    passed = MIN_GC <= gc_content <= MAX_GC
+
+    return passed, gc_content
+
+
