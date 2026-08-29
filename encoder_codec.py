@@ -119,4 +119,36 @@ def check_gc_content(sequence):
 
     return passed, gc_content
 
+# ============================================================
+# CONSTRAINT 2: HOMOPOLYMER
+# ============================================================
+
+def check_homopolymer(sequence):
+    """
+    Checks for excessive consecutive identical bases.
+
+    Example:
+
+    AAA  -> allowed
+    AAAA -> violation
+    """
+
+    if not sequence:
+        return True, 0
+
+    longest = 1
+    current = 1
+
+    for i in range(1, len(sequence)):
+
+        if sequence[i] == sequence[i - 1]:
+            current += 1
+            longest = max(longest, current)
+        else:
+            current = 1
+
+    passed = longest <= MAX_HOMOPOLYMER
+
+    return passed, longest
+
 
