@@ -220,3 +220,12 @@ def check_repeated_sequences(sequence):
     passed = len(violations) <= MAX_REPEAT_COUNT
 
     return passed, violations
+
+
+# ============================================================
+# PROGRAM ENTRY POINT
+# ============================================================
+
+if __name__ == "__main__":
+
+    encode_file()
