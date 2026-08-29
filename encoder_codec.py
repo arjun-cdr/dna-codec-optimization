@@ -151,4 +151,32 @@ def check_homopolymer(sequence):
 
     return passed, longest
 
+# ============================================================
+# CONSTRAINT 3: SEQUENCE COMPLEXITY / k-MER FREQUENCY
+# ============================================================
+
+def check_kmer_frequency(sequence):
+    """
+    Checks whether any k-mer occurs too many times.
+    """
+
+    if len(sequence) < KMER_SIZE:
+        return True, {}
+
+    kmers = [
+        sequence[i:i + KMER_SIZE]
+        for i in range(len(sequence) - KMER_SIZE + 1)
+    ]
+
+    frequencies = Counter(kmers)
+
+    violations = {
+        kmer: count
+        for kmer, count in frequencies.items()
+        if count > MAX_KMER_FREQUENCY
+    }
+
+    passed = len(violations) == 0
+
+    return passed, violations
 
