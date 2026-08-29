@@ -180,3 +180,43 @@ def check_kmer_frequency(sequence):
 
     return passed, violations
 
+# ============================================================
+# CONSTRAINT 4: REPEATED SEQUENCES
+# ============================================================
+
+def check_repeated_sequences(sequence):
+    """
+    Detects repeated consecutive blocks.
+
+    Example:
+
+    ACGTACGTACGT
+
+    contains repeated ACGT blocks.
+    """
+
+    if len(sequence) < 4:
+        return True, []
+
+    violations = []
+
+    # Check repeat lengths from 2 to 6 bases
+    for repeat_length in range(2, 7):
+
+        for i in range(len(sequence) - 2 * repeat_length + 1):
+
+            block1 = sequence[i:i + repeat_length]
+            block2 = sequence[
+                i + repeat_length:
+                i + 2 * repeat_length
+            ]
+
+            if block1 == block2:
+
+                violations.append(
+                    (i, block1)
+                )
+
+    passed = len(violations) <= MAX_REPEAT_COUNT
+
+    return passed, violations
