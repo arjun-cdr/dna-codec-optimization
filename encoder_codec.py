@@ -298,6 +298,42 @@ def check_all_constraints(sequence):
     return overall_pass, results
 
 # ============================================================
+# MAPPING 1: DIRECT MAPPING
+# ============================================================
+
+def direct_mapping(binary):
+    """
+    Direct mapping:
+
+    00 -> A
+    01 -> C
+    10 -> G
+    11 -> T
+    """
+
+    mapping = {
+        "00": "A",
+        "01": "C",
+        "10": "G",
+        "11": "T"
+    }
+
+    pairs = bits_to_pairs(binary)
+
+    sequence = "".join(
+        mapping[pair]
+        for pair in pairs
+    )
+
+    metadata = {
+        "technique": "Direct Mapping",
+        "mapping": mapping
+    }
+
+    return sequence, metadata
+
+
+# ============================================================
 # PROGRAM ENTRY POINT
 # ============================================================
 
