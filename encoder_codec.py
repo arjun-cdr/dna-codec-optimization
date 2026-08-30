@@ -23,6 +23,7 @@ MAX_KMER_FREQUENCY = 3
 
 # Maximum number of repeated consecutive patterns
 MAX_REPEAT_COUNT = 2
+MIN_REPEAT_LENGTH = 4
 
 # ============================================================
 # BASIC BINARY VALIDATION
