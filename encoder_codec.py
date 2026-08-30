@@ -233,6 +233,69 @@ def check_repeated_sequences(sequence):
 
     return passed, violations
 
+# ============================================================
+# ALL CONSTRAINTS
+# ============================================================
+
+def check_all_constraints(sequence):
+    """
+    Executes all constraints.
+
+    Returns:
+        overall_pass
+        detailed_results
+    """
+
+    gc_pass, gc_value = check_gc_content(sequence)
+
+    homopolymer_pass, longest_homopolymer = \
+        check_homopolymer(sequence)
+
+    kmer_pass, kmer_violations = \
+        check_kmer_frequency(sequence)
+
+    repeat_pass, repeat_violations = \
+        check_repeated_sequences(sequence)
+
+    results = {
+
+        "GC_Content": {
+            "passed": gc_pass,
+            "value": gc_value,
+            "allowed_range": [
+                MIN_GC,
+                MAX_GC
+            ]
+        },
+
+        "Homopolymer": {
+            "passed": homopolymer_pass,
+            "longest_run": longest_homopolymer,
+            "maximum_allowed": MAX_HOMOPOLYMER
+        },
+
+        "kmer_frequency": {
+            "passed": kmer_pass,
+            "k": KMER_SIZE,
+            "maximum_allowed": MAX_KMER_FREQUENCY,
+            "violations": kmer_violations
+        },
+
+        "Repeated_sequences": {
+            "passed": repeat_pass,
+            "violation_count": len(repeat_violations),
+            "maximum_allowed": MAX_REPEAT_COUNT
+        }
+    }
+
+    overall_pass = (
+        gc_pass
+        and homopolymer_pass
+        and kmer_pass
+        and repeat_pass
+    )
+
+    return overall_pass, results
 
 # ============================================================
 # PROGRAM ENTRY POINT
