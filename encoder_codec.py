@@ -187,26 +187,35 @@ def check_kmer_frequency(sequence):
 
 def check_repeated_sequences(sequence):
     """
-    Detects repeated consecutive blocks.
+    Checks for excessive TANDEM repeats.
 
-    Example:
+    A tandem repeat occurs when the same block appears
+    immediately twice:
 
-    ACGTACGTACGT
+        ACGTACGT
+        ---- ----
+         ACGT ACGT
 
-    contains repeated ACGT blocks.
+    We only consider repeats of length 4 or greater.
+    Short 2- and 3-base repetitions are not treated as
+    constraint violations.
     """
 
-    if len(sequence) < 4:
-        return True, []
+    MIN_REPEAT_LENGTH = 4
+    MAX_REPEAT_LENGTH = 8
 
     violations = []
 
-    # Check repeat lengths from 2 to 6 bases
-    for repeat_length in range(2, 7):
+    for repeat_length in range(4, 9):
 
-        for i in range(len(sequence) - 2 * repeat_length + 1):
+        for i in range(
+            len(sequence) - 2 * repeat_length + 1
+        ):
 
-            block1 = sequence[i:i + repeat_length]
+            block1 = sequence[
+                i:i + repeat_length
+            ]
+
             block2 = sequence[
                 i + repeat_length:
                 i + 2 * repeat_length
@@ -214,11 +223,13 @@ def check_repeated_sequences(sequence):
 
             if block1 == block2:
 
-                violations.append(
-                    (i, block1)
-                )
+                violations.append({
+                    "position": i,
+                    "repeat_length": repeat_length,
+                    "sequence": block1
+                })
 
-    passed = len(violations) <= MAX_REPEAT_COUNT
+    passed = len(violations) == 0
 
     return passed, violations
 
