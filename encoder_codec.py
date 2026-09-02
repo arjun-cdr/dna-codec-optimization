@@ -435,10 +435,10 @@ def input_aware_mapping(binary):
 
     return "".join(sequence), metadata
 
+
 # ============================================================
 # PROGRAM ENTRY POINT
 # ============================================================
 
 if __name__ == "__main__":
-
     encode_file()
