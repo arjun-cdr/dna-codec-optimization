@@ -332,6 +332,42 @@ def direct_mapping(binary):
 
     return sequence, metadata
 
+# ============================================================
+# MAPPING 2: PERMUTATION BASED MAPPING
+# ============================================================
+
+def permutation_mapping(binary):
+    """
+    Uses a different permutation of A,C,G,T.
+
+    00 -> G
+    01 -> T
+    10 -> A
+    11 -> C
+    """
+
+    mapping = {
+        "00": "G",
+        "01": "T",
+        "10": "A",
+        "11": "C"
+    }
+
+    pairs = bits_to_pairs(binary)
+
+    sequence = "".join(
+        mapping[pair]
+        for pair in pairs
+    )
+
+    metadata = {
+        "technique": "Permutation Based Mapping",
+        "mapping": mapping
+    }
+
+    return sequence, metadata
+
+
 
 # ============================================================
 # PROGRAM ENTRY POINT
