@@ -435,6 +435,89 @@ def input_aware_mapping(binary):
 
     return "".join(sequence), metadata
 
+# ============================================================
+# MAPPING 5: CHAOTIC MAPPING
+# ============================================================
+
+def chaotic_mapping(binary):
+    """
+    Chaotic mapping using the logistic map.
+
+    x(n+1) = r*x(n)*(1-x(n))
+
+    The generated values determine permutations of A,C,G,T.
+
+    The initial seed and r value are stored so that the decoder
+    can reproduce exactly the same mapping.
+    """
+
+    seed = 0.713245
+    r = 3.99
+
+    pairs = bits_to_pairs(binary)
+
+    sequence = []
+
+    mapping_history = []
+
+    x = seed
+
+    for pair in pairs:
+
+        # Logistic map
+        x = r * x * (1 - x)
+
+        # Generate a permutation
+        order = sorted(
+            range(4),
+            key=lambda _: (
+                x * 1000000
+            ) % 997
+        )
+
+        # More deterministic permutation generation
+        indices = list(range(4))
+
+        # Fisher-Yates-like deterministic shuffle
+        value = int(x * 10**12)
+
+        for i in range(3, 0, -1):
+
+            j = value % (i + 1)
+
+            indices[i], indices[j] = \
+                indices[j], indices[i]
+
+            value //= (i + 1)
+
+        mapping = {
+            "00": BASES[indices[0]],
+            "01": BASES[indices[1]],
+            "10": BASES[indices[2]],
+            "11": BASES[indices[3]]
+        }
+
+        base = mapping[pair]
+
+        sequence.append(base)
+
+        mapping_history.append({
+            "position": len(sequence) - 1,
+            "bits": pair,
+            "mapping": mapping,
+            "base": base
+        })
+
+    metadata = {
+        "technique": "Chaotic Mapping",
+        "chaotic_function": "logistic_map",
+        "r": r,
+        "seed": seed,
+        "mapping_history": mapping_history
+    }
+
+    return "".join(sequence), metadata
+
 
 # ============================================================
 # PROGRAM ENTRY POINT
