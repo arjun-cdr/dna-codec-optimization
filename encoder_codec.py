@@ -368,6 +368,72 @@ def permutation_mapping(binary):
     return sequence, metadata
 
 
+# ============================================================
+# MAPPING 3: INPUT-AWARE MAPPING
+# ============================================================
+
+def input_aware_mapping(binary):
+    """
+    Mapping depends on the previous 2-bit symbol.
+
+    This makes the mapping dependent on the input sequence.
+
+    Four different mapping tables are used depending on
+    the previous symbol.
+    """
+
+    mappings = {
+
+        "00": {
+            "00": "A",
+            "01": "C",
+            "10": "G",
+            "11": "T"
+        },
+
+        "01": {
+            "00": "C",
+            "01": "G",
+            "10": "T",
+            "11": "A"
+        },
+
+        "10": {
+            "00": "G",
+            "01": "T",
+            "10": "A",
+            "11": "C"
+        },
+
+        "11": {
+            "00": "T",
+            "01": "A",
+            "10": "C",
+            "11": "G"
+        }
+    }
+
+    pairs = bits_to_pairs(binary)
+
+    sequence = []
+
+    previous_pair = "00"
+
+    for pair in pairs:
+
+        base = mappings[previous_pair][pair]
+
+        sequence.append(base)
+
+        previous_pair = pair
+
+    metadata = {
+        "technique": "Input Aware Mapping",
+        "mappings": mappings,
+        "initial_state": "00"
+    }
+
+    return "".join(sequence), metadata
 
 # ============================================================
 # PROGRAM ENTRY POINT
