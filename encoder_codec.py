@@ -641,6 +641,93 @@ def encode_file():
             ]["passed"]
         )
 
+        # ----------------------------------------------------
+        # SUCCESS
+        # ----------------------------------------------------
+
+        if passed:
+
+            print(
+                f"\nSUCCESS!"
+            )
+
+            print(
+                f"Successful technique: "
+                f"{technique_name}"
+            )
+
+            # ----------------------------------------------
+            # Save DNA sequence
+            # ----------------------------------------------
+
+            with open(
+                DNA_OUTPUT_FILE,
+                "w",
+                encoding="utf-8"
+            ) as file:
+
+                file.write(dna_sequence)
+
+            # ----------------------------------------------
+            # Save mapping metadata
+            # ----------------------------------------------
+
+            final_metadata = {
+
+                "encoding_system":
+                    "Binary to DNA",
+
+                "successful_technique":
+                    technique_name,
+
+                "original_binary_length":
+                    len(binary) - padding,
+
+                "encoded_binary_length":
+                    len(binary),
+
+                "padding_bits":
+                    padding,
+
+                "dna_length":
+                    len(dna_sequence),
+
+                "constraints":
+                    constraint_results,
+
+                "mapping_information":
+                    metadata
+            }
+
+            with open(
+                MAPPING_OUTPUT_FILE,
+                "w",
+                encoding="utf-8"
+            ) as file:
+
+                json.dump(
+                    final_metadata,
+                    file,
+                    indent=4
+                )
+
+            print(
+                f"\nDNA sequence saved to:"
+                f" {DNA_OUTPUT_FILE}"
+            )
+
+            print(
+                f"Mapping information saved to:"
+                f" {MAPPING_OUTPUT_FILE}"
+            )
+
+            print(
+                "\nEncoding process completed."
+            )
+
+            return
+
+
 # ============================================================
 # PROGRAM ENTRY POINT
 # ============================================================
