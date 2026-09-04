@@ -564,6 +564,23 @@ def encode_file():
 
         return
 
+    # --------------------------------------------------------
+    # Mapping techniques
+    # --------------------------------------------------------
+
+    mapping_techniques = [
+
+        ("Constraint Aware Mapping", constraint_aware_mapping),
+
+        ("Input Aware Mapping", input_aware_mapping),
+
+        ("Permutation Based Mapping", permutation_mapping),
+
+        ("Chaotic Mapping", chaotic_mapping),
+
+        ("Direct Mapping", direct_mapping)
+    ]
+
 
 # ============================================================
 # PROGRAM ENTRY POINT
