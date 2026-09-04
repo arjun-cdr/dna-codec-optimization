@@ -580,7 +580,66 @@ def encode_file():
 
         ("Direct Mapping", direct_mapping)
     ]
+    
+    # --------------------------------------------------------
+    # Try techniques one by one
+    # --------------------------------------------------------
 
+    for technique_name, mapping_function in mapping_techniques:
+
+        print(
+            f"\nTrying: {technique_name}"
+        )
+
+        # ----------------------------------------------------
+        # Perform mapping
+        # ----------------------------------------------------
+
+        dna_sequence, metadata = \
+            mapping_function(binary)
+
+        print(
+            f"DNA length: {len(dna_sequence)}"
+        )
+
+        # ----------------------------------------------------
+        # Check constraints
+        # ----------------------------------------------------
+
+        passed, constraint_results = \
+            check_all_constraints(dna_sequence)
+
+        # ----------------------------------------------------
+        # Display constraint results
+        # ----------------------------------------------------
+
+        print(
+            "GC Content:",
+            constraint_results[
+                "GC_Content"
+            ]["passed"]
+        )
+
+        print(
+            "Homopolymer:",
+            constraint_results[
+                "Homopolymer"
+            ]["passed"]
+        )
+
+        print(
+            "k-mer Frequency:",
+            constraint_results[
+                "kmer_frequency"
+            ]["passed"]
+        )
+
+        print(
+            "Repeated Sequences:",
+            constraint_results[
+                "Repeated_sequences"
+            ]["passed"]
+        )
 
 # ============================================================
 # PROGRAM ENTRY POINT
