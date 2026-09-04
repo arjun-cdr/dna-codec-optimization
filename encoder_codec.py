@@ -741,6 +741,22 @@ def encode_file():
                 "Trying next mapping technique..."
             )
 
+    # ========================================================
+    # ALL TECHNIQUES FAILED
+    # ========================================================
+
+    print("\n" + "=" * 60)
+    print("ENCODING FAILED")
+    print("=" * 60)
+
+    print(
+        "All available mapping techniques failed "
+        "the constraint checks."
+    )
+
+    print(
+        "No final DNA sequence was generated."
+    )
 
 # ============================================================
 # PROGRAM ENTRY POINT
