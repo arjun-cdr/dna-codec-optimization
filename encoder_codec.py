@@ -727,6 +727,20 @@ def encode_file():
 
             return
 
+        # ----------------------------------------------------
+        # FAILURE
+        # ----------------------------------------------------
+
+        else:
+
+            print(
+                f"FAILED: {technique_name}"
+            )
+
+            print(
+                "Trying next mapping technique..."
+            )
+
 
 # ============================================================
 # PROGRAM ENTRY POINT
