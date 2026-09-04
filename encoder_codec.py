@@ -436,6 +436,318 @@ def input_aware_mapping(binary):
     return "".join(sequence), metadata
 
 # ============================================================
+# MAPPING 4: CONSTRAINT-AWARE MAPPING
+# ============================================================
+
+def constraint_aware_mapping(binary):
+    """
+    Constraint-Aware Binary -> DNA Mapping
+
+    At every position, all four DNA bases are considered.
+    The candidate that best satisfies the constraints is selected.
+
+    The algorithm considers:
+        1. Homopolymer constraint
+        2. k-mer frequency
+        3. Tandem repeats
+        4. Global GC balance
+        5. Future GC feasibility
+
+    The exact position-wise mapping is stored because the
+    mapping is adaptive.
+    """
+
+    pairs = bits_to_pairs(binary)
+
+    sequence = []
+    position_mapping = []
+
+    total_length = len(pairs)
+
+    # --------------------------------------------------------
+    # Candidate bases
+    # --------------------------------------------------------
+
+    candidates = {
+        "00": ["A", "C", "G", "T"],
+        "01": ["C", "G", "T", "A"],
+        "10": ["G", "T", "A", "C"],
+        "11": ["T", "A", "C", "G"]
+    }
+
+    # --------------------------------------------------------
+    # Helper: check homopolymer
+    # --------------------------------------------------------
+
+    def violates_homopolymer(seq, base):
+
+        if len(seq) < MAX_HOMOPOLYMER:
+            return False
+
+        return all(
+            x == base
+            for x in seq[-MAX_HOMOPOLYMER:]
+        )
+
+    # --------------------------------------------------------
+    # Helper: check k-mer frequency
+    # --------------------------------------------------------
+
+    def violates_kmer(seq, base):
+
+        temp = seq + [base]
+
+        if len(temp) < KMER_SIZE:
+            return False
+
+        new_kmer = "".join(
+            temp[-KMER_SIZE:]
+        )
+
+        count = 0
+
+        for i in range(
+            len(temp) - KMER_SIZE + 1
+        ):
+
+            kmer = "".join(
+                temp[
+                    i:i + KMER_SIZE
+                ]
+            )
+
+            if kmer == new_kmer:
+                count += 1
+
+        return count > MAX_KMER_FREQUENCY
+
+    # --------------------------------------------------------
+    # Helper: check tandem repeat
+    # --------------------------------------------------------
+
+    def violates_tandem_repeat(seq, base):
+
+        temp = seq + [base]
+
+        for repeat_length in range(4, 9):
+
+            if len(temp) < repeat_length * 2:
+                continue
+
+            block1 = "".join(
+                temp[-2 * repeat_length:
+                     -repeat_length]
+            )
+
+            block2 = "".join(
+                temp[-repeat_length:]
+            )
+
+            if block1 == block2:
+                return True
+
+        return False
+
+    # --------------------------------------------------------
+    # Build sequence
+    # --------------------------------------------------------
+
+    for index, pair in enumerate(pairs):
+
+        remaining_after = total_length - index - 1
+
+        possible_bases = candidates[pair]
+
+        valid_candidates = []
+
+        current_gc = sum(
+            1 for base in sequence
+            if base in "GC"
+        )
+
+        for base in possible_bases:
+
+            # ==============================================
+            # Constraint 1: Homopolymer
+            # ==============================================
+
+            if violates_homopolymer(
+                sequence,
+                base
+            ):
+                continue
+
+            # ==============================================
+            # Constraint 2: k-mer frequency
+            # ==============================================
+
+            if violates_kmer(
+                sequence,
+                base
+            ):
+                continue
+
+            # ==============================================
+            # Constraint 3: Tandem repeat
+            # ==============================================
+
+            if violates_tandem_repeat(
+                sequence,
+                base
+            ):
+                continue
+
+            # ==============================================
+            # Constraint 4: Future GC feasibility
+            # ==============================================
+
+            new_gc = current_gc
+
+            if base in "GC":
+                new_gc += 1
+
+            current_length = index + 1
+
+            min_possible_gc = new_gc
+            max_possible_gc = new_gc + remaining_after
+
+            min_required_gc = (
+                MIN_GC * total_length
+            )
+
+            max_allowed_gc = (
+                MAX_GC * total_length
+            )
+
+            # If even making every remaining base A/T
+            # gives too much GC -> reject
+            if min_possible_gc > max_allowed_gc:
+                continue
+
+            # If even making every remaining base G/C
+            # gives too little GC -> reject
+            if max_possible_gc < min_required_gc:
+                continue
+
+            # ==============================================
+            # Candidate is locally valid
+            # ==============================================
+
+            valid_candidates.append(
+                base
+            )
+
+        # ----------------------------------------------------
+        # If no candidate is locally valid
+        # ----------------------------------------------------
+
+        if not valid_candidates:
+
+            # This should rarely happen.
+            # We report failure rather than silently
+            # producing an invalid sequence.
+
+            raise ValueError(
+                f"Constraint-aware mapping became impossible "
+                f"at position {index}."
+            )
+
+        # ----------------------------------------------------
+        # Select candidate closest to desired GC ratio
+        # ----------------------------------------------------
+
+        target_gc = (
+            (MIN_GC + MAX_GC) / 2
+        )
+
+        best_base = None
+        best_score = float("inf")
+
+        for base in valid_candidates:
+
+            new_gc = current_gc
+
+            if base in "GC":
+                new_gc += 1
+
+            new_length = index + 1
+
+            projected_gc = (
+                new_gc / new_length
+            )
+
+            # ----------------------------------------------
+            # Distance from target GC
+            # ----------------------------------------------
+
+            gc_score = abs(
+                projected_gc - target_gc
+            )
+
+            # ----------------------------------------------
+            # Homopolymer preference
+            # ----------------------------------------------
+
+            homopolymer_score = 0
+
+            if sequence:
+
+                if sequence[-1] == base:
+                    homopolymer_score = 0.1
+
+            # ----------------------------------------------
+            # Total score
+            # ----------------------------------------------
+
+            score = (
+                gc_score
+                + homopolymer_score
+            )
+
+            if score < best_score:
+
+                best_score = score
+                best_base = base
+
+        # ----------------------------------------------------
+        # Add selected base
+        # ----------------------------------------------------
+
+        sequence.append(best_base)
+
+        position_mapping.append({
+            "position": index,
+            "bits": pair,
+            "base": best_base
+        })
+
+    # --------------------------------------------------------
+    # Final sequence
+    # --------------------------------------------------------
+
+    dna_sequence = "".join(sequence)
+
+    metadata = {
+        "technique":
+            "Constraint Aware Mapping",
+
+        "position_mapping":
+            position_mapping,
+
+        "algorithm":
+            "Adaptive constraint-aware mapping",
+
+        "constraints_considered": [
+            "GC Content",
+            "Homopolymer",
+            "k-mer Frequency",
+            "Tandem Repeats"
+        ]
+    }
+
+    return dna_sequence, metadata
+
+# ============================================================
 # MAPPING 5: CHAOTIC MAPPING
 # ============================================================
 
