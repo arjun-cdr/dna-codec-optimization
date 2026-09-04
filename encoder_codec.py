@@ -518,6 +518,16 @@ def chaotic_mapping(binary):
 
     return "".join(sequence), metadata
 
+# ============================================================
+# MAIN ENCODING PIPELINE
+# ============================================================
+
+def encode_file():
+
+    print("=" * 60)
+    print("       BINARY -> DNA ENCODING SYSTEM")
+    print("=" * 60)
+
 
 # ============================================================
 # PROGRAM ENTRY POINT
