@@ -527,6 +527,42 @@ def encode_file():
     print("=" * 60)
     print("       BINARY -> DNA ENCODING SYSTEM")
     print("=" * 60)
+    
+    # --------------------------------------------------------
+    # Read binary input
+    # --------------------------------------------------------
+
+    try:
+
+        with open(
+            INPUT_FILE,
+            "r",
+            encoding="utf-8"
+        ) as file:
+
+            binary = file.read().strip()
+
+    except FileNotFoundError:
+
+        print(
+            f"\nERROR: {INPUT_FILE} was not found."
+        )
+
+        return
+
+    # --------------------------------------------------------
+    # Prepare binary
+    # --------------------------------------------------------
+
+    try:
+
+        binary, padding = prepare_binary(binary)
+
+    except ValueError as error:
+
+        print(f"\nERROR: {error}")
+
+        return
 
 
 # ============================================================
